@@ -2,17 +2,17 @@
  * engine.c - Supervised Multi-Container Runtime (User Space)
  *
  * Intentionally partial starter:
- *   - command-line shape is defined
- *   - key runtime data structures are defined
- *   - bounded-buffer skeleton is defined
- *   - supervisor / client split is outlined
+ * - command-line shape is defined
+ * - key runtime data structures are defined
+ * - bounded-buffer skeleton is defined
+ * - supervisor / client split is outlined
  *
  * Students are expected to design:
- *   - the control-plane IPC implementation
- *   - container lifecycle and metadata synchronization
- *   - clone + namespace setup for each container
- *   - producer/consumer behavior for log buffering
- *   - signal handling and graceful shutdown
+ * - the control-plane IPC implementation
+ * - container lifecycle and metadata synchronization
+ * - clone + namespace setup for each container
+ * - producer/consumer behavior for log buffering
+ * - signal handling and graceful shutdown
  */
 
 #define _GNU_SOURCE
@@ -553,9 +553,9 @@ static void bounded_buffer_begin_shutdown(bounded_buffer_t *buffer)
  * Implement producer-side insertion into the bounded buffer.
  *
  * Requirements:
- *   - block or fail according to your chosen policy when the buffer is full
- *   - wake consumers correctly
- *   - stop cleanly if shutdown begins
+ * - block or fail according to your chosen policy when the buffer is full
+ * - wake consumers correctly
+ * - stop cleanly if shutdown begins
  */
 int bounded_buffer_push(bounded_buffer_t *buffer, const log_item_t *item)
 {
@@ -583,9 +583,9 @@ int bounded_buffer_push(bounded_buffer_t *buffer, const log_item_t *item)
  * Implement consumer-side removal from the bounded buffer.
  *
  * Requirements:
- *   - wait correctly while the buffer is empty
- *   - return a useful status when shutdown is in progress
- *   - avoid races with producers and shutdown
+ * - wait correctly while the buffer is empty
+ * - return a useful status when shutdown is in progress
+ * - avoid races with producers and shutdown
  */
 int bounded_buffer_pop(bounded_buffer_t *buffer, log_item_t *item)
 {
@@ -635,9 +635,9 @@ static int resolve_log_path(supervisor_ctx_t *ctx,
  * Implement the logging consumer thread.
  *
  * Suggested responsibilities:
- *   - remove log chunks from the bounded buffer
- *   - route each chunk to the correct per-container log file
- *   - exit cleanly when shutdown begins and pending work is drained
+ * - remove log chunks from the bounded buffer
+ * - route each chunk to the correct per-container log file
+ * - exit cleanly when shutdown begins and pending work is drained
  */
 void *logging_thread(void *arg)
 {
@@ -701,11 +701,11 @@ static void *log_producer_thread(void *arg)
  * Implement the clone child entrypoint.
  *
  * Required outcomes:
- *   - isolated PID / UTS / mount context
- *   - chroot or pivot_root into rootfs
- *   - working /proc inside container
- *   - stdout / stderr redirected to the supervisor logging path
- *   - configured command executed inside the container
+ * - isolated PID / UTS / mount context
+ * - chroot or pivot_root into rootfs
+ * - working /proc inside container
+ * - stdout / stderr redirected to the supervisor logging path
+ * - configured command executed inside the container
  */
 int child_fn(void *arg)
 {
@@ -797,11 +797,11 @@ int unregister_from_monitor(int monitor_fd, const char *container_id, pid_t host
  * Implement the long-running supervisor process.
  *
  * Suggested responsibilities:
- *   - create and bind the control-plane IPC endpoint
- *   - initialize shared metadata and the bounded buffer
- *   - start the logging thread
- *   - accept control requests and update container state
- *   - reap children and respond to signals
+ * - create and bind the control-plane IPC endpoint
+ * - initialize shared metadata and the bounded buffer
+ * - start the logging thread
+ * - accept control requests and update container state
+ * - reap children and respond to signals
  */
 static int ensure_metadata_capacity(supervisor_ctx_t *ctx)
 {
@@ -1122,8 +1122,8 @@ static int get_container_snapshot(supervisor_ctx_t *ctx,
 }
 
 static int wait_for_container_completion(supervisor_ctx_t *ctx,
-                                          const char *id,
-                                          int client_fd)
+                                         const char *id,
+                                         int client_fd)
 {
     container_record_t snapshot;
 
@@ -1303,7 +1303,7 @@ static void stop_container(supervisor_ctx_t *ctx, const char *id)
 
     record->stop_requested = 1;
     if (record->state == CONTAINER_RUNNING || record->state == CONTAINER_STARTING)
-        kill(record->host_pid, SIGTERM);
+        kill(record->host_pid, SIGKILL);
     pthread_mutex_unlock(&ctx->metadata_lock);
 }
 
@@ -1318,7 +1318,7 @@ static void stop_all_running(supervisor_ctx_t *ctx)
             continue;
         if (record->state == CONTAINER_RUNNING || record->state == CONTAINER_STARTING) {
             record->stop_requested = 1;
-            kill(record->host_pid, SIGTERM);
+            kill(record->host_pid, SIGKILL);
         }
     }
     pthread_mutex_unlock(&ctx->metadata_lock);
