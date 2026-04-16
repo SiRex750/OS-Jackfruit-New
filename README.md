@@ -165,48 +165,56 @@ The cleanup path removes the control socket, build artifacts, logs, and generate
 ### Screenshot 1 — Multi-container supervision
 
 *Two containers (alpha, beta) running under one supervisor process, shown via `./engine ps`.*
+![Screenshot 1](docs/screenshots/ss1.jpeg)
 
 -----
 
 ### Screenshot 2 — Metadata tracking
 
 *Output of `./engine ps` showing all tracked container metadata: id, pid, state, soft/hard limits, exit code, signal, log path.*
+![Screenshot 2](docs/screenshots/ss2.jpeg)
 
 -----
 
 ### Screenshot 3 — Bounded-buffer logging
 
 *Log file contents captured through the pipe → bounded buffer → consumer thread pipeline. `cat logs/alpha.log` shows cpu\_hog output routed through the logging pipeline.*
+![Screenshot 3](docs/screenshots/ss3.jpeg)
 
 -----
 
 ### Screenshot 4 — CLI and IPC
 
 *`./engine stop alpha` issued from CLI client, request sent over UNIX domain socket to supervisor, supervisor responds "OK stop requested id=alpha" and updates container state to stopped.*
+![Screenshot 4](docs/screenshots/ss4.jpeg)
 
 -----
 
 ### Screenshot 5 — Soft-limit warning
 
 *`dmesg` output showing `[container_monitor] Registering container=memtest` and `HARD LIMIT` exceeded event logged by the kernel module when container RSS crosses the soft limit threshold.*
+![Screenshot 5](docs/screenshots/ss5.jpeg)
 
 -----
 
 ### Screenshot 6 — Hard-limit enforcement
 
 *Container `memtest` started with `--soft-mib 40 --hard-mib 64`, kernel module detects RSS exceeding hard limit and sends SIGKILL. `./engine ps` shows state as `hard_limit_killed` with exit signal 9.*
+![Screenshot 6](docs/screenshots/ss6.jpeg)
 
 -----
 
 ### Screenshot 7 — Scheduling experiment
 
 *Two CPU-bound containers launched: `cpuA` at nice=0, `cpuB` at nice=15. `top` output shows cpuA receiving \~79% CPU vs cpuB receiving \~44%, demonstrating CFS weighted scheduling based on nice values.*
+![Screenshot 7](docs/screenshots/ss7.jpeg)
 
 -----
 
 ### Screenshot 8 — Clean teardown
 
 *After stopping all containers and sending SIGINT to supervisor, `ps aux | grep engine` shows no engine supervisor processes remaining. No zombie processes.*
+![Screenshot 8](docs/screenshots/ss8.jpeg)
 
 -----
 
